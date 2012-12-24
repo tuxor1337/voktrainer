@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Vokabeltrainer
+GenericName=Vokabeltrainer geschrieben in Python
+Comment=Vokabeln lernen
+Exec=/usr/bin/voktrainer %U
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=voktrainer
+Categories=Utility;
+X-GNOME-FullName=Vokabeltrainer für Linux
+Name[de_DE]=voktrainer
