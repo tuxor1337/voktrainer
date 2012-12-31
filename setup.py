@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import os
 from distutils.core import setup
+from distutils.dep_util import newer
 from distutils.command.build_scripts \
       import build_scripts as distutils_build_scripts
 
@@ -18,7 +20,7 @@ class build_scripts(distutils_build_scripts):
 
 setup(name='Vokabeltrainer für Linux',
       version='1.0',
-      cmd_classes={"build_scripts": build_scripts},
+      cmdclass={"build_scripts": build_scripts},
       description='Vokabeltrainer geschrieben in Python',
       author='Thomas Vogt',
       author_email='tuxor1337@web.de',
