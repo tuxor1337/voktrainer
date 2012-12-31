@@ -2,11 +2,11 @@
 Name=Vokabeltrainer
 GenericName=Vokabeltrainer geschrieben in Python
 Comment=Vokabeln lernen
-Exec=/usr/bin/voktrainer %U
+Exec=voktrainer
 Terminal=false
 Type=Application
 StartupNotify=true
 Icon=voktrainer
 Categories=Utility;
 X-GNOME-FullName=Vokabeltrainer für Linux
-Name[de_DE]=voktrainer
+Name[de_DE]=Vokabeltrainer für Linux
