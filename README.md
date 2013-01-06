@@ -5,6 +5,15 @@ Vokabeltrainer für Linux geschrieben in Python. Für weitere Informationen, sie
 http://tovotu.de/blog/523-Vokabeltrainer-fr-Linux/ und
 http://tovotu.de/dev/517-Vokabeltrainer-fr-Linux-Download--Installation
 
+Schnelleinstieg: Programm in einzelne ausführbare Datei schreiben
+-----------------------------------------------------------------
+
+Es ist möglich, eine voll funktionsfähige Version des Programms in eine
+ausführbare Datei `dist/voktrainer` zu schreiben. Dazu übergibt man an setup.py
+den Befehl `single_file` wie folgt:
+
+    % python setup.py single_file
+
 Installation
 ------------
 
