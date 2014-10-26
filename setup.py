@@ -54,7 +54,7 @@ if "single_file" in sys.argv:
     data_files = []
 
 setup(name='Vokabeltrainer für Linux',
-      version='1.0',
+      version='1.0.1',
       cmdclass={"build_scripts": build_scripts, "single_file": single_file},
       description='Vokabeltrainer geschrieben in Python',
       author='Thomas Vogt',
