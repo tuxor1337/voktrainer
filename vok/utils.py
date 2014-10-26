@@ -8,7 +8,7 @@ def extended_lower(str_var):
   for old,new in zip(["Ä","Ö","Ü","É","È","Ô","Æ","Ø"],["ä","ö","ü","é","è","ô","æ","ø"]):
           return_str = return_str.replace(old,new)
   return return_str
-        
+
 def switch_case(var_in):
    if not IGNORE_CASE:
       return var_in
@@ -44,7 +44,7 @@ def remove_accents(input_str):
       return_str = return_str.replace(old,new)
    return return_str
 
-def sort_cstm(model,iter1,iter2,nr):        
+def sort_cstm(model,iter1,iter2,nr):
    str1=model.get_value(iter1,nr).lower()
    str2=model.get_value(iter2,nr).lower()
    gewinner = ["ohne kapitel","alle kapitel"]
@@ -62,8 +62,8 @@ def sort_cstm(model,iter1,iter2,nr):
       return 1
    else:
       return -1
-      
-def sort_utf8(model,iter1,iter2,nr):        
+
+def sort_utf8(model,iter1,iter2,nr):
    str1=remove_accents(model.get_value(iter1,nr).lower())
    str2=remove_accents(model.get_value(iter2,nr).lower())
    if str1 == str2:
@@ -75,4 +75,4 @@ def sort_utf8(model,iter1,iter2,nr):
 
 def word_list(vok_str):
    return vok_str.strip("[]").replace("][","#").split("#")
-   
+

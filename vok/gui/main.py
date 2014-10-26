@@ -80,7 +80,7 @@ class gui_main(Gtk.Window):
       button = Gtk.Button("Lernstand zurücksetzen")
       button.connect("released", self.button_cb,"zurueck")
       bottom_row.pack_end(button,False,False,5)
-      
+
       box_alles = Gtk.VBox()
       box_alles.pack_start(top_row,False,True,5)
       self.scrollwin = Gtk.ScrolledWindow()
@@ -89,7 +89,7 @@ class gui_main(Gtk.Window):
       box_alles.pack_start(self.scrollwin,True,True,0)
       box_alles.pack_start(bottom_row,False,True,5)
       self.add(box_alles)
-      
+
       accelgroup = Gtk.AccelGroup()
       self.add_accel_group(accelgroup)
       accelgroup.connect(Gdk.keyval_from_name("q"),Gdk.ModifierType.CONTROL_MASK,Gtk.AccelFlags.VISIBLE,self.accel_cb)
@@ -97,16 +97,16 @@ class gui_main(Gtk.Window):
       self.connect("destroy", self.destroy_cb)
       self.show_all()
       self.refresh_all()
-      
+
       Gtk.main()
-      
+
    def accel_cb(self,accel_group,acceleratable,keyval,modifier):
       self.destroy()
-        
+
    def destroy_cb(self,widget,data=None):
       self.kartei.close()
       Gtk.main_quit()
-      
+
    def changed_cb(self,widget):
       for i in range(3):
          if self.selected[i] != self.select[i].get_active() \
@@ -117,11 +117,11 @@ class gui_main(Gtk.Window):
             else:
                self.refresh_vok()
             return True
-      
+
    def refresh_all(self):
       self.refresh_spr()
       self.ready = True
-      
+
    def refresh_spr(self):
       self.listen[0].clear()
       for sprache in self.kartei.get_sprachen():
@@ -139,7 +139,7 @@ class gui_main(Gtk.Window):
             sel.set_sensitive(True)
       self.select[0].set_active(0)
       self.refresh_kap()
-      
+
    def refresh_kap(self):
       if self.select[0].get_active() != -1:
          self.listen[1].clear()
@@ -152,7 +152,7 @@ class gui_main(Gtk.Window):
          self.select[2].set_active(0)
          self.refresh_vok()
       return True
-      
+
    def refresh_vok(self):
       if self.select[0].get_active() != -1 and self.select[1].get_active() != -1 \
          and self.select[2].get_active() != -1:
@@ -161,7 +161,7 @@ class gui_main(Gtk.Window):
             self.listen[2][self.selected[2]][1])
       self.refresh_anz_vok()
       return True
-      
+
    def refresh_anz_vok(self):
       if self.select[0].get_active() != -1 and self.select[1].get_active() != -1 \
          and self.select[2].get_active() != -1:
@@ -175,12 +175,12 @@ class gui_main(Gtk.Window):
             self.anz_vok.set_text("%d Einträge" % (len(self.vokliste.vok_store)))
       else:
          self.anz_vok.hide()
-         
+
    def button_key_cb(self,widget,event,data):
       if event.type == Gdk.EventType.KEY_PRESS and event.keyval == Gdk.keyval_from_name("Return"):
          self.button_cb(widget,data)
          return True
-      
+
    def button_cb(self,button,data):
       if data == "verw":
          gui_sprachen(self,self.geometry,self.kartei)
@@ -210,3 +210,4 @@ class gui_main(Gtk.Window):
                self.listen[1][self.selected[1]][1],
                self.listen[2][self.selected[2]][1])
       return True
+
