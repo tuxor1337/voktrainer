@@ -4,6 +4,8 @@
 if __name__ == "__main__":
    from sys import argv
    if len(argv) < 2:
+      import gi
+      gi.require_version('Gtk', '3.0')
       from gi.repository import Gtk
       from vok.gui.main import gui_main
       gui_main()
