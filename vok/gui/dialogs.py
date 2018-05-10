@@ -33,7 +33,7 @@ class dialog_entry(Gtk.Dialog):
          self.key_cb(self.entries[-1],None)
       self.entries[-1].set_activates_default(True)
       box.pack_start(self.entries[-1],True,True,0)
-      self.vbox.pack_start(box,True,True,0)
+      self.vbox.pack_start(box,False,False,0)
       
 def dialog_kap_rem(win):
    frage = Gtk.MessageDialog(win,Gtk.DialogFlags.MODAL,

@@ -21,17 +21,18 @@ class gui_main(Gtk.Window):
       screen = Gdk.Screen.get_default()
       self.geometry   = (screen.width()/640.0,screen.height()/480.0,\
              int(screen.width()*0.5),int(screen.height()*0.5))
-      width,height = int(500.0*max(1,self.geometry[0])),int(400.0*max(1,self.geometry[1]))
+      width,height = int(600.0*max(1,self.geometry[0])),int(400.0*max(1,self.geometry[1]))
       self.set_size_request(width,height)
       self.set_position(Gtk.WindowPosition.CENTER)
-      self.set_title("Vokabeltrainer")
 
       self.ready    = False
       self.kartei   = vokabelKartei()
       self.buttons  = []
       self.selected = [0,0,0]
 
-      top_row = Gtk.HBox()
+      top_row = Gtk.HeaderBar()
+      top_row.set_title("Vokabeltrainer")
+      top_row.set_show_close_button(True)
       self.listen,self.select = [],[]
       for i in range(3):
          self.listen.append(Gtk.TreeStore(str,int))
@@ -41,7 +42,7 @@ class gui_main(Gtk.Window):
          self.select.append(Gtk.ComboBox.new_with_model(self.listen[i]))
          self.select[i].pack_start(cell, True)
          self.select[i].add_attribute(cell, 'text', 0)
-         top_row.pack_start(self.select[i],False,False,5)
+         top_row.pack_start(self.select[i])
       self.select[0].connect("changed",self.changed_cb)
       self.select[1].connect("changed",self.changed_cb)
       self.select[2].connect("changed",self.changed_cb)
@@ -49,21 +50,22 @@ class gui_main(Gtk.Window):
       for kasten in range(1,KASTEN_ANZ+1):
          self.listen[2].append(None,["Kasten "+str(kasten),kasten])
       self.anz_vok = Gtk.Label(label="0 Einträge")
-      top_row.pack_start(self.anz_vok,False,False,5)
+      top_row.pack_start(self.anz_vok)
       self.abfragefilter = Gtk.CheckButton(label="Abfragefilter")
       if FILTER_ON == 1:
          self.abfragefilter.set_active(True)
       else:
          self.abfragefilter.set_active(False)
-      top_row.pack_end(self.abfragefilter,False,False,5)
+      top_row.pack_end(self.abfragefilter)
       self.buttons.append(Gtk.Button("Abfrage starten"))
-      top_row.pack_end(self.buttons[-1],False,False,5)
+      top_row.pack_end(self.buttons[-1])
       self.buttons[-1].connect("released",self.button_cb,"abfr")
       self.buttons[-1].connect("key_press_event",self.button_key_cb,"abfr")
       self.buttons.append(Gtk.Button("Vokabeln eintragen"))
-      top_row.pack_end(self.buttons[-1],False,False,5)
+      top_row.pack_end(self.buttons[-1])
       self.buttons[-1].connect("released",self.button_cb,"eintr")
       self.buttons[-1].connect("key_press_event",self.button_key_cb,"eintr")
+      self.set_titlebar(top_row)
 
       self.vokliste = gui_anzeige(self.kartei)
 
@@ -82,7 +84,6 @@ class gui_main(Gtk.Window):
       bottom_row.pack_end(button,False,False,5)
 
       box_alles = Gtk.VBox()
-      box_alles.pack_start(top_row,False,True,5)
       self.scrollwin = Gtk.ScrolledWindow()
       self.scrollwin.add(self.vokliste)
       self.scrollwin.set_policy(Gtk.PolicyType.AUTOMATIC,Gtk.PolicyType.AUTOMATIC)
