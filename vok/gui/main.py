@@ -18,8 +18,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from gi.repository import Gtk,Gdk
+from gi.repository import Gtk, Gdk
 from time import sleep
+from pkg_resources import resource_filename
 
 from ..core.kartei import vokabelKartei
 from ..core.config import KASTEN_ANZ, FILTER_ON
@@ -32,106 +33,76 @@ from .sprachen import gui_sprachen
 from .eingabe import gui_eingabe
 from .abfrage import gui_abfrage
 
-class gui_main(Gtk.Window):
+class gui_main(object):
     def __init__(self):
-        Gtk.Window.__init__(self)
+        self.ready    = False
 
+        builder = Gtk.Builder()
+        builder.add_from_file(resource_filename("vok.gui", "main.glade"))
+        builder.connect_signals(self)
+
+        self.win = builder.get_object("window1")
         screen = Gdk.Screen.get_default()
         self.geometry   = (screen.width()/640.0,screen.height()/480.0,\
-             int(screen.width()*0.5),int(screen.height()*0.5))
+                           int(screen.width()*0.5),int(screen.height()*0.5))
         width = int(600.0*max(1,self.geometry[0]))
         height = int(400.0*max(1,self.geometry[1]))
-        self.set_size_request(width,height)
-        self.set_position(Gtk.WindowPosition.CENTER)
+        self.win.set_size_request(width, height)
 
-        self.ready    = False
         self.kartei   = vokabelKartei()
-        self.buttons  = []
-        self.selected = [0,0,0]
+        self.vokliste = gui_anzeige(self.kartei, builder.get_object("anzeige"))
+        self.anz_vok = builder.get_object("anz_vok")
 
-        top_row = Gtk.HeaderBar()
-        top_row.set_title("VokabeltrainerTest")
-        top_row.set_show_close_button(True)
-        self.listen,self.select = [],[]
-        for i in range(3):
-            self.listen.append(Gtk.TreeStore(str,int))
+        self.selected = [0,0,0]
+        self.listen, self.select = [], []
+        for i in ["sprache","kapitel","kasten"]:
+            self.listen.append(builder.get_object("store_%s" % i))
             self.listen[-1].set_sort_column_id(0,Gtk.SortType.ASCENDING)
             self.listen[-1].set_sort_func(0,sort_cstm,0)
-            cell = Gtk.CellRendererText()
-            self.select.append(Gtk.ComboBox.new_with_model(self.listen[i]))
-            self.select[i].pack_start(cell, True)
-            self.select[i].add_attribute(cell, 'text', 0)
-            top_row.pack_start(self.select[i])
-        self.select[0].connect("changed",self.changed_cb)
-        self.select[1].connect("changed",self.changed_cb)
-        self.select[2].connect("changed",self.changed_cb)
-        self.listen[2].append(None,["Alle Kästen",0])
+            self.select.append(builder.get_object("sel_%s" % i))
         for kasten in range(1,KASTEN_ANZ+1):
-            self.listen[2].append(None,["Kasten "+str(kasten),kasten])
-        self.anz_vok = Gtk.Label(label="0 Einträge")
-        top_row.pack_start(self.anz_vok)
-        self.abfragefilter = Gtk.CheckButton(label="Abfragefilter")
+            self.listen[2].append(["Kasten "+str(kasten), kasten])
+
+        self.abfragefilter = builder.get_object("abfragefilter")
         if FILTER_ON == 1:
             self.abfragefilter.set_active(True)
         else:
             self.abfragefilter.set_active(False)
-        top_row.pack_end(self.abfragefilter)
-        self.buttons.append(Gtk.Button("Abfrage starten"))
-        top_row.pack_end(self.buttons[-1])
-        self.buttons[-1].connect("released",self.button_cb,"abfr")
-        self.buttons[-1].connect("key_press_event",self.button_key_cb,"abfr")
-        self.buttons.append(Gtk.Button("Vokabeln eintragen"))
-        top_row.pack_end(self.buttons[-1])
-        self.buttons[-1].connect("released",self.button_cb,"eintr")
-        self.buttons[-1].connect("key_press_event",self.button_key_cb,"eintr")
-        self.set_titlebar(top_row)
 
-        self.vokliste = gui_anzeige(self.kartei)
+        self.buttons  = [
+            builder.get_object("button%d" % i) for i in range(1,7)
+        ]
+        self.buttons[0].connect("released", self.button_cb, "abfr")
+        self.buttons[0].connect("key_press_event", self.button_key_cb, "abfr")
+        self.buttons[1].connect("released", self.button_cb,"eintr")
+        self.buttons[1].connect("key_press_event", self.button_key_cb, "eintr")
+        self.buttons[2].connect("released", self.button_cb, "import")
+        self.buttons[3].connect("released", self.button_cb, "export")
+        self.buttons[4].connect("released", self.button_cb, "verw")
+        self.buttons[5].connect("released", self.button_cb, "zurueck")
 
-        bottom_row = Gtk.HBox()
-        self.buttons.append(Gtk.Button("Importieren aus Datei..."))
-        bottom_row.pack_start(self.buttons[-1],False,False,5)
-        self.buttons[-1].connect("released", self.button_cb,"import")
-        self.buttons.append(Gtk.Button("Exportieren in Datei..."))
-        bottom_row.pack_start(self.buttons[-1],False,False,5)
-        self.buttons[-1].connect("released", self.button_cb,"export")
-        button = Gtk.Button("Kapitel und Sprachen verwalten")
-        button.connect("released", self.button_cb,"verw")
-        bottom_row.pack_end(button,False,False,5)
-        button = Gtk.Button("Lernstand zurücksetzen")
-        button.connect("released", self.button_cb,"zurueck")
-        bottom_row.pack_end(button,False,False,5)
+        builder.get_object("accelgroup") \
+               .connect(Gdk.keyval_from_name("q"),
+                        Gdk.ModifierType.CONTROL_MASK,
+                        Gtk.AccelFlags.VISIBLE,
+                        self.accel_cb)
 
-        box_alles = Gtk.VBox()
-        self.scrollwin = Gtk.ScrolledWindow()
-        self.scrollwin.add(self.vokliste)
-        self.scrollwin.set_policy(Gtk.PolicyType.AUTOMATIC,
-                                  Gtk.PolicyType.AUTOMATIC)
-        box_alles.pack_start(self.scrollwin,True,True,0)
-        box_alles.pack_start(bottom_row,False,True,5)
-        self.add(box_alles)
-
-        accelgroup = Gtk.AccelGroup()
-        self.add_accel_group(accelgroup)
-        accelgroup.connect(Gdk.keyval_from_name("q"),
-                           Gdk.ModifierType.CONTROL_MASK,
-                           Gtk.AccelFlags.VISIBLE,
-                           self.accel_cb)
-
-        self.connect("destroy", self.destroy_cb)
-        self.show_all()
+        self.win.refresh_vok = self.refresh_vok
+        self.win.refresh_anz_vok = self.refresh_anz_vok
+        self.win.listen = self.listen
+        self.win.select = self.select
+        self.win.show_all()
         self.refresh_all()
-
         Gtk.main()
 
-    def accel_cb(self,accel_group,acceleratable,keyval,modifier):
-        self.destroy()
+    def accel_cb(self, accel_group, acceleratable, keyval, modifier):
+        self.win.destroy()
 
-    def destroy_cb(self,widget,data=None):
+    def destroy_cb(self, widget, data=None):
         self.kartei.close()
         Gtk.main_quit()
 
-    def changed_cb(self,widget):
+    def changed_cb(self, widget):
         for i in range(3):
             if self.selected[i] != self.select[i].get_active() \
                 and self.select[i].get_active() != -1:
@@ -149,9 +120,9 @@ class gui_main(Gtk.Window):
     def refresh_spr(self):
         self.listen[0].clear()
         for sprache in self.kartei.get_sprachen():
-            self.listen[0].append(None,[sprache[1],sprache[0]])
+            self.listen[0].append([sprache[1],sprache[0]])
         if len(self.listen[0]) == 0:
-            self.listen[0].append(None,["---",0])
+            self.listen[0].append(["---",0])
             for button in self.buttons:
                 button.set_sensitive(False)
             for sel in self.select:
@@ -167,13 +138,13 @@ class gui_main(Gtk.Window):
     def refresh_kap(self):
         if self.select[0].get_active() != -1:
             self.listen[1].clear()
-            self.listen[1].append(None,["Alle Kapitel",-1])
+            self.listen[1].append(["Alle Kapitel",-1])
             if self.listen[0][0][1] != 0:
                 kaps = self.listen[0][self.selected[0]][1]
                 kaps = self.kartei.get_kapitel(kaps)
                 for kapitel in kaps:
-                        self.listen[1].append(None, [kapitel[1], kapitel[0]])
-            self.listen[1].append(None, ["Ohne Kapitel", 0])
+                    self.listen[1].append([kapitel[1], kapitel[0]])
+            self.listen[1].append(["Ohne Kapitel", 0])
             self.select[1].set_active(0)
             self.select[2].set_active(0)
             self.refresh_vok()
@@ -213,17 +184,17 @@ class gui_main(Gtk.Window):
 
     def button_cb(self,button,data):
         if data == "verw":
-            gui_sprachen(self,self.geometry,self.kartei)
+            gui_sprachen(self.win,self.geometry,self.kartei)
         elif data == "eintr":
-            gui_eingabe(self,self.geometry,self.kartei,
+            gui_eingabe(self.win,self.geometry,self.kartei,
                 self.listen[0][self.selected[0]][1],
                 self.listen[1][self.selected[1]][1])
         elif data == "abfr":
-            gui_abfrage(self,vok_abfrager(self.kartei,
-                self.listen[0][self.selected[0]][1],
-                self.listen[1][self.selected[1]][1],
-                self.listen[2][self.selected[2]][1],
-                self.abfragefilter.get_active()),self.geometry)
+            gui_abfrage(self.win,vok_abfrager(self.kartei,
+                        self.listen[0][self.selected[0]][1],
+                        self.listen[1][self.selected[1]][1],
+                        self.listen[2][self.selected[2]][1],
+                        self.abfragefilter.get_active()),self.geometry)
         elif data == "zurueck":
             for vok in self.vokliste.vok_store:
                 if vok[3] != "Kasten 1":
@@ -231,14 +202,14 @@ class gui_main(Gtk.Window):
                     self.kartei.touch_vok(vok[4],True)
             self.refresh_vok()
         elif data == "import":
-            if vok_import(self, self.kartei,
-                                self.listen[0][self.selected[0]][1],
-                                self.listen[1][self.selected[1]][1]):
+            if vok_import(self.win, self.kartei,
+                          self.listen[0][self.selected[0]][1],
+                          self.listen[1][self.selected[1]][1]):
                 self.refresh_vok()
         elif data == "export":
-            vok_export(self, self.kartei,
-                             self.listen[0][self.selected[0]][1],
-                             self.listen[1][self.selected[1]][1],
-                             self.listen[2][self.selected[2]][1])
+            vok_export(self.win, self.kartei,
+                self.listen[0][self.selected[0]][1],
+                self.listen[1][self.selected[1]][1],
+                self.listen[2][self.selected[2]][1])
         return True
 

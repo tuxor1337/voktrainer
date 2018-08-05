@@ -40,7 +40,7 @@ def switch_case(var_in):
 
 def remove_accents(input_str):
     return_str = input_str
-    if type(input_str) == unicode:
+    if type(input_str) == str:
         nkfd_form = unicodedata.normalize('NFKD', input_str)
         return_str = u"".join([c for c in nkfd_form \
                                      if not unicodedata.combining(c)])
