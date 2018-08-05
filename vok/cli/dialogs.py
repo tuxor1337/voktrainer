@@ -33,5 +33,5 @@ dialog_export = lambda x: argv[2]"""
 dialog_vok_merge_edit = lambda x,y: False
 dialog_import = lambda x: argv[2]
 def dialog_vok_merge_yn(win,vok):
-   print("Führe neue Vokabel %s mit existierendem Eintrag zusammen." % (vok))
-   return True
+    print("Führe neue Vokabel %s mit existierendem Eintrag zusammen." % (vok))
+    return True
