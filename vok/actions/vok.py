@@ -1,4 +1,22 @@
 # -*- coding: utf-8 -*-
+#
+# This file is part of Vokabeltrainer für Linux
+#
+# Copyright 2018 Thomas Vogt
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 
 from ..utils import word_list
 from ..core.config import CLI_MODE
@@ -23,7 +41,7 @@ def vok_merge(win,kartei,orig,new_meanings):
       return None
    else:
       return dialog_vok_merge_edit(win,orig[1])
-      
+
 def vok_edit(win,kartei,vok):
    response = dialog_vok_edit(win,*vok[1:3])
    if response != vok[1:3]:
@@ -36,7 +54,7 @@ def vok_edit(win,kartei,vok):
          kartei.edit_vok(*edited[0:3])
          return [edited]
    return None
-      
+
 def vok_add(win,kartei,wrd1,wrd2,spr,kap):
    lst = word_list(wrd1)
    added,i = [],0
@@ -54,13 +72,13 @@ def vok_add(win,kartei,wrd1,wrd2,spr,kap):
          added.append(vok)
       i += 1
    return added
-   
+
 def vok_rem(win,kartei,vokids):
    if dialog_vok_rem(win,len(vokids)):
       kartei.rem_vok(vokids)
       return True
    return False
-   
+
 def vok_move(win,kartei,vokids,kapid):
    anz_ids,moved = len(vokids),[]
    if anz_ids > 30:
@@ -82,7 +100,7 @@ def vok_move(win,kartei,vokids,kapid):
    if anz_ids > 30:
       prog_w.destroy()
    return moved
-   
+
 def vok_copy(win,kartei,vokids,kapid):
    anz_ids,copied = len(vokids),[]
    if anz_ids > 30:
@@ -99,7 +117,7 @@ def vok_copy(win,kartei,vokids,kapid):
    if anz_ids > 30:
       prog_w.destroy()
    return copied
-   
+
 def vok_import(win,kartei,spr,kap):
    filename = dialog_import(win)
    if filename != None:
@@ -116,7 +134,7 @@ def vok_import(win,kartei,spr,kap):
          kartei.set_commit_mode(True)
          return True
    return False
-   
+
 def vok_export(win,kartei,spr,kap,kasten):
       filename,format = dialog_export(win)
       if filename == None:
@@ -144,4 +162,4 @@ def vok_export(win,kartei,spr,kap,kasten):
          tmp_file.writelines(output)
          return True
       return False
-   
+

@@ -1,4 +1,22 @@
 # -*- coding: utf-8 -*-
+#
+# This file is part of Vokabeltrainer für Linux
+#
+# Copyright 2018 Thomas Vogt
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 
 from gi.repository import Gtk,Gdk
 
@@ -8,7 +26,7 @@ from ..actions.vok import vok_add,vok_edit,vok_rem
 class gui_eingabe(Gtk.Window):
    def __init__(self,maingui,geometry,kartei,sprache,kapitel):
       Gtk.Window.__init__(self)
-        
+
       self.parent_gui = maingui
       self.kartei     = kartei
       if kapitel == -1:
@@ -44,7 +62,7 @@ class gui_eingabe(Gtk.Window):
       button.connect("key_press_event", self.add_vokabel)
       hbox.pack_end(button,False,False,0)
       box_alles.pack_start(hbox,False,False,1)
-      
+
       self.zuletzt_store = Gtk.TreeStore(str,str,int)
       tree,spalten = Gtk.TreeView(self.zuletzt_store),[]
       for i,name in zip(range(2),["Abgrefragte Sprache","Antwortsprache"]):
@@ -72,15 +90,15 @@ class gui_eingabe(Gtk.Window):
       self.show_all()
       self.scrollwin = scrollwin
       self.tree = tree
-        
+
    def destroy_cb(self,widget,data=None):
       if len(self.zuletzt_store) != 0:
          self.parent_gui.refresh_vok()
-      
+
    def add_vokabel(self,widget=None,data=None):
       tmp_eintr = self.input_field[1].get_text()
       tmp_eintr2 = self.input_field[0].get_text()
-      
+
       if tmp_eintr2 == "" and tmp_eintr == "":
             self.destroy()
       if tmp_eintr2 == "" or tmp_eintr == "":
@@ -94,7 +112,7 @@ class gui_eingabe(Gtk.Window):
       self.input_field[0].set_text("")
       self.input_field[1].set_text("")
       self.input_field[0].grab_focus()
-   
+
    def edit_dialog(self):
       vok = self.kartei.get_vok(self.zuletzt_store[self.tree.gewaehlt][2])
       edited = vok_edit(self,self.kartei,vok)
@@ -107,13 +125,13 @@ class gui_eingabe(Gtk.Window):
          else :
             self.zuletzt_store.set(self.zuletzt_store.get_iter(self.tree.gewaehlt),
                   0, edited[0][1], 1, edited[0][2], 2, edited[0][0])
-      
+
    def rem_from_tree(self,vokid):
       for vok in self.zuletzt_store:
          if vok[2] == vokid:
             self.zuletzt_store.remove(vok.iter)
             break
-     
+
    def add_vok_to_tree(self,spr1,spr2,vokid):
       self.zuletzt_store.insert(None,0,[spr1,spr2,vokid])
       self.tree.get_selection().select_path((0,))
@@ -122,7 +140,7 @@ class gui_eingabe(Gtk.Window):
          while Gtk.events_pending():
             Gtk.main_iteration()
          scrollbar.set_value(0.0)
-      
+
    def button_tree_cb(self,widget,event=None):
       time = event.time
       pthinfo = self.tree.get_path_at_pos(int(event.x), int(event.y))
@@ -151,7 +169,7 @@ class gui_eingabe(Gtk.Window):
             self.tree.set_cursor(path, col, 0)
             self.edit_dialog()
          return True
-         
+
    def key_tree_cb(self,widget,event=None):
       if event.type == Gdk.EventType.KEY_PRESS and event.keyval == Gdk.keyval_from_name("Return"):
          sel = self.tree.get_selection()
@@ -160,20 +178,20 @@ class gui_eingabe(Gtk.Window):
             self.edit_dialog()
             return True
       return False
-         
+
    def menuitem_cb(self,widget,string):
       if string == "del":
          if vok_rem(self,self.kartei,self.zuletzt_store[self.tree.gewaehlt][2:3]):
             self.zuletzt_store.remove(self.zuletzt_store.get_iter(self.tree.gewaehlt))
       elif string == "edit":
          self.edit_dialog()
-   
+
    def button_cb(self,widget,event=None):
       if (event.type == Gdk.EventType.KEY_PRESS and event.keyval == Gdk.keyval_from_name("Escape")):
          self.destroy()
          return True
       elif (event.type == Gdk.EventType.KEY_PRESS and event.keyval == Gdk.keyval_from_name("Return")) or \
-         (event.type == Gdk.EventType.BUTTON_PRESS): 
+         (event.type == Gdk.EventType.BUTTON_PRESS):
          self.add_vokabel()
          return True
       elif event.type == Gdk.EventType.KEY_PRESS and event.keyval == Gdk.keyval_from_name("e")\

@@ -1,4 +1,22 @@
 # -*- coding: utf-8 -*-
+#
+# This file is part of Vokabeltrainer für Linux
+#
+# Copyright 2018 Thomas Vogt
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 
 from multiprocessing import Process,Array
 from time import time
@@ -7,7 +25,7 @@ import sqlite3
 from .config import KASTEN_ANZ,VOK_DIR
 
 class vokabelKartei(Process):
-   def __init__(self): 
+   def __init__(self):
       self.conn = sqlite3.connect(VOK_DIR+"kartei.sqlite")
       self.conn.text_factory = str
       self.c = self.conn.cursor()
@@ -31,7 +49,7 @@ class vokabelKartei(Process):
 
    def execute(self,query_str,args=()):
       if self.DEBUG_MODE == True:
-         print query_str, args
+         print(query_str, args)
       self.c.execute(query_str,args)
 
    def set_commit_mode(self,mode):
@@ -61,13 +79,13 @@ class vokabelKartei(Process):
 
    def get_stapel(self,sprache,kapitel=-1,kasten=0):
       if kapitel != -1 and kasten != 0:
-         self.execute("""SELECT * FROM vokabeln 
+         self.execute("""SELECT * FROM vokabeln
             WHERE spr_id=? AND kap_id=? AND kasten=?""",(sprache,kapitel,kasten))
       elif kapitel != -1:
-         self.execute("""SELECT * FROM vokabeln 
+         self.execute("""SELECT * FROM vokabeln
             WHERE spr_id=? AND kap_id=?""",(sprache,kapitel))
       elif kasten != 0:
-         self.execute("""SELECT * FROM vokabeln 
+         self.execute("""SELECT * FROM vokabeln
             WHERE spr_id=? AND kasten=?""",(sprache,kasten))
       else:
          self.execute("SELECT * FROM vokabeln WHERE spr_id=?",(sprache,))
@@ -126,13 +144,13 @@ class vokabelKartei(Process):
 
    def count_vok(self,sprache,kapitel=0,kasten=0):
       if kapitel != 0 and kasten != 0:
-         self.execute("""SELECT COUNT(*) FROM vokabeln 
+         self.execute("""SELECT COUNT(*) FROM vokabeln
             WHERE spr_id=? AND kap_id=? AND kasten=?""",(sprache,kapitel,kasten))
       elif kasten != 0:
-         self.execute("""SELECT COUNT(*) FROM vokabeln 
+         self.execute("""SELECT COUNT(*) FROM vokabeln
             WHERE spr_id=? AND kasten=?""",(sprache,kasten))
       elif kapitel != 0:
-         self.execute("""SELECT COUNT(*) FROM vokabeln 
+         self.execute("""SELECT COUNT(*) FROM vokabeln
             WHERE spr_id=? AND kap_id=?""",(sprache,kapitel))
       else:
          self.execute("""SELECT COUNT(*) FROM vokabeln WHERE spr_id=?""",(sprache,))

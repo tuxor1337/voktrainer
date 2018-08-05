@@ -1,4 +1,22 @@
 # -*- coding: utf-8 -*-
+#
+# This file is part of Vokabeltrainer für Linux
+#
+# Copyright 2018 Thomas Vogt
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 
 from gi.repository import Gtk,Gdk
 
@@ -12,7 +30,7 @@ class gui_anzeige(Gtk.TreeView):
       Gtk.TreeView.__init__(self,self.vok_store)
       self.kartei = kartei
       self.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE)
-      
+
       self.spalten = []
       for i,name in enumerate(["Abgrefragte Sprache","Antwortsprache",\
                                        "Kapitel","Kasten"]):
@@ -39,9 +57,9 @@ class gui_anzeige(Gtk.TreeView):
    def show_stapel(self,sprache,kapitel,kasten):
       if sprache == 0:
          return False
-         
+
       self.info = [sprache,kapitel,kasten]
-      
+
       self.vok_store.set_sort_column_id(-1,Gtk.SortType.ASCENDING)
       spr_info = self.kartei.get_sprachen(sprache)[0]
       self.spalten[0].set_title(spr_info[2])
@@ -58,7 +76,7 @@ class gui_anzeige(Gtk.TreeView):
             kap = "Ohne Kapitel"
          else:
             kap = self.kartei.get_kapitel(sprache,vok[3])[0][1]
-         self.vok_store.append(None, [vok[1], 
+         self.vok_store.append(None, [vok[1],
                ", ".join(vok[2].strip("[]").split("][")),
                kap,"Kasten "+str(vok[4]),vok[0]])
       prog_w.destroy()
@@ -118,19 +136,19 @@ class gui_anzeige(Gtk.TreeView):
          if anz_rows > 30:
             self.show()
             self.get_toplevel().anz_vok.show()
-            
+
    def get_path_from_vokid(self,vokid):
       for vok in self.vok_store:
          if vok[4] == vokid:
             return vok.path
             break
       return None
-            
+
    def rem_from_tree(self,vokid):
       path = self.get_path_form_vokid(vokid)
       if path != None:
          self.vok_store.remove(self.vok_store.get_iter(path))
-     
+
    def add_vok_to_tree(self,vokid):
       vok = self.kartei.get_vok(vokid)
       if vok[3] <= 0:
@@ -138,7 +156,7 @@ class gui_anzeige(Gtk.TreeView):
       else:
          kap = self.kartei.get_kapitel(self.info[0],vok[3])[0][1]
       self.vok_store.append(None,[vok[1],", ".join(word_list(vok[2])),kap,"Kasten "+str(vok[4]),vok[0]])
-      
+
    def edit_tree_vok(self,path,vokid):
       vok = self.kartei.get_vok(vokid)
       if vok[3] <= 0:
@@ -147,7 +165,7 @@ class gui_anzeige(Gtk.TreeView):
          kap = self.kartei.get_kapitel(self.info[0],vok[3])[0][1]
       self.vok_store.set(self.vok_store.get_iter(path),0,vok[1],
          1,", ".join(word_list(vok[2])),2,kap,3,"Kasten "+str(vok[4]),4,vok[0])
-      
+
    def edit_dialog(self):
       vok = self.kartei.get_vok(self.vok_store[self.gewaehlt][4])
       edited = vok_edit(self.get_toplevel(),self.kartei,vok)
@@ -162,7 +180,7 @@ class gui_anzeige(Gtk.TreeView):
             if vok[0] != edited[0][0]:
                self.rem_from_tree(edited[0][0])
             self.edit_tree_vok(row.get_path(),edited[0][0])
-        
+
    def button_release_cb(self,widget,event):
       pthinfo = self.get_path_at_pos(int(event.x), int(event.y))
       if event.button == 3:
@@ -202,7 +220,7 @@ class gui_anzeige(Gtk.TreeView):
             self.kontext.show_all()
             self.kontext.popup(None, None, None, None, 0, event.time)
          return True
-         
+
    def button_press_cb(self,widget,event):
       pthinfo = self.get_path_at_pos(int(event.x), int(event.y))
       if event.button == 3:
@@ -215,7 +233,7 @@ class gui_anzeige(Gtk.TreeView):
             self.set_cursor(path, col, 0)
             self.edit_dialog()
          return True
-         
+
    def button_key_cb(self,widget,event):
       if event.type == Gdk.EventType.KEY_PRESS and event.keyval == Gdk.keyval_from_name("Delete"):
          self.menuitem_cb(widget,"del")

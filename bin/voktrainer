@@ -1,5 +1,22 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#
+# This file is part of Vokabeltrainer für Linux
+#
+# Copyright 2018 Thomas Vogt
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 if __name__ == "__main__":
    from sys import argv
@@ -19,7 +36,7 @@ if __name__ == "__main__":
          if len(argv) >= 4:
             kapitel = argv[3]
          for vok in kartei.get_stapel(argv[2],kapitel):
-            print "%s@%s" % (vok[1],vok[2])
+            print("%s@%s" % (vok[1],vok[2]))
       elif argv[1] == "import" and len(argv) >= 4:
          kapitel = 0
          if len(argv) >= 5:
@@ -29,13 +46,13 @@ if __name__ == "__main__":
          vok_import(None,kartei,argv[3],kapitel)
       elif argv[1] == "sprachen":
          for spr in kartei.get_sprachen():
-            print "%s: %s [%s-%s]" % (spr[0],spr[1],spr[2],spr[3])
+            print("%s: %s [%s-%s]" % (spr[0],spr[1],spr[2],spr[3]))
       elif argv[1] in ["kapitel","kap"] and len(argv) >= 3:
          for kap in kartei.get_kapitel(argv[2]):
-            print "%s: %s" % (kap[0],kap[1])
+            print("%s: %s" % (kap[0],kap[1]))
       elif argv[1] == "new" and len(argv) >= 4:
          if argv[2] == "kap" and len(argv) >= 5:
             kartei.add_kapitel(argv[4],argv[3])
          if argv[2] == "spr" and len(argv) >= 5:
             kartei.add_sprache(argv[3],argv[4],argv[5])
-         
+
