@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Vokabeltrainer für Linux',
-    version='1.0.1',
+    version='1.1',
     description='Vokabeltrainer geschrieben in Python',
     url='https://framagit.org/tuxor1337/voktrainer',
     author='Thomas Vogt',
