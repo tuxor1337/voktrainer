@@ -111,11 +111,7 @@ class gui_sprachen(Gtk.Window):
 
     def show_context_menu(self,path,but,time):
         kontext = Gtk.Menu()
-        if path == None:
-            menu_item = Gtk.MenuItem("Kapitel hinzufügen")
-            menu_item.connect("activate", self.menuitem_cb, "add_kap")
-            kontext.append(menu_item)
-        else:
+        if path is not None:
             menu_item = Gtk.MenuItem("Kapitel löschen")
             menu_item.connect("activate", self.menuitem_cb,"rem_kap")
             kontext.append(menu_item)
@@ -123,6 +119,10 @@ class gui_sprachen(Gtk.Window):
             menu_item = Gtk.MenuItem("Umbennenen")
             menu_item.connect("activate", self.menuitem_cb,"edit_kap")
             kontext.append(menu_item)
+            kontext.append(Gtk.SeparatorMenuItem())
+        menu_item = Gtk.MenuItem("Kapitel hinzufügen")
+        menu_item.connect("activate", self.menuitem_cb, "add_kap")
+        kontext.append(menu_item)
         kontext.show_all()
         kontext.popup(None, None, None, None, but, time)
         self.kontext = kontext
