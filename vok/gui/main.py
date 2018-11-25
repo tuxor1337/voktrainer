@@ -184,13 +184,12 @@ class gui_main(object):
 
     def button_cb(self,button,data):
         if data == "verw":
-            gui_sprachen(self.win,self.geometry,self.kartei)
+            gui_sprachen(self)
         elif data == "eintr":
-            gui_eingabe(self.win,self.geometry,self.kartei,
-                self.listen[0][self.selected[0]][1],
-                self.listen[1][self.selected[1]][1])
+            gui_eingabe(self, self.listen[0][self.selected[0]][1],
+                              self.listen[1][self.selected[1]][1])
         elif data == "abfr":
-            gui_abfrage(self.win,vok_abfrager(self.kartei,
+            gui_abfrage(self.win, vok_abfrager(self.kartei,
                         self.listen[0][self.selected[0]][1],
                         self.listen[1][self.selected[1]][1],
                         self.listen[2][self.selected[2]][1],

@@ -118,10 +118,17 @@ def vok_copy(win,kartei,vokids,kapid):
         prog_w.destroy()
     return copied
 
-def vok_import(win,kartei,spr,kap):
+def vok_import(win, kartei, spr, kap, encoding="utf-8"):
     filename = dialog_import(win)
-    if filename != None:
-        with open(filename,"r") as tmp_file:
+    if filename == None:
+        return False
+    else:
+        vok_import_file(filename, win, kartei, spr, kap)
+        return True
+
+def vok_import_file(filename, win, kartei, spr, kap, encoding="utf-8"):
+    try:
+        with open(filename, "r", encoding=encoding) as tmp_file:
             kartei.set_commit_mode(False)
             lines = tmp_file.readlines()
             anz_lines = len(lines)
@@ -132,8 +139,15 @@ def vok_import(win,kartei,spr,kap):
                     vok = line.strip().split("@")
                     vok_add(win,kartei,vok[0].strip(),vok[1].strip(),spr,kap)
             kartei.set_commit_mode(True)
-            return True
-    return False
+    except UnicodeDecodeError:
+        if encoding == "utf-8":
+            encoding = "iso-8859-1"
+        elif encoding == "iso-8859-1":
+            encoding = "cp-1252"
+        else:
+            raise
+        vok_import_file(filename, win, kartei, spr, kap, encoding=encoding)
+
 
 def vok_export(win,kartei,spr,kap,kasten):
         filename,format = dialog_export(win)

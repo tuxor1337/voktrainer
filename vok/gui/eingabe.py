@@ -24,24 +24,24 @@ from .dialogs import dialog_entry
 from ..actions.vok import vok_add,vok_edit,vok_rem
 
 class gui_eingabe(Gtk.Window):
-    def __init__(self,maingui,geometry,kartei,sprache,kapitel):
+    def __init__(self,main,sprache,kapitel):
         Gtk.Window.__init__(self)
 
-        self.parent_gui = maingui
-        self.kartei     = kartei
+        self.parent_gui = main
+        self.kartei     = main.kartei
         if kapitel == -1:
             self.kapitel = 0
         else:
             self.kapitel = kapitel
         self.spr_info   = self.kartei.get_sprachen(sprache)[0]
 
-        width = int(190.0*max(1,geometry[0]))
-        height = int(90.0*max(1,geometry[1]))
+        width = int(190.0*max(1,main.geometry[0]))
+        height = int(90.0*max(1,main.geometry[1]))
         self.set_size_request(width,-1)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.set_title("Vokabeln hinzufügen")
         self.set_modal(True)
-        self.set_transient_for(self.parent_gui)
+        self.set_transient_for(self.parent_gui.win)
         self.set_skip_taskbar_hint(True)
 
         box_alles = Gtk.VBox()

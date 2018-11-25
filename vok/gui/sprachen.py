@@ -25,20 +25,20 @@ from ..actions.spr import spr_edit,spr_rem,spr_add
 from ..actions.kap import kap_add,kap_edit,kap_rem
 
 class gui_sprachen(Gtk.Window):
-    def __init__(self,maingui,geometry,kartei):
+    def __init__(self,main):
         Gtk.Window.__init__(self)
 
-        self.parent_gui = maingui
-        self.kartei     = kartei
+        self.parent_gui = main
+        self.kartei     = main.kartei
         self.refreshed  = [False,False]
 
-        width = int(180.0*max(1,geometry[0]))
-        height = int(200.0*max(1,geometry[1]))
+        width = int(180.0*max(1,main.geometry[0]))
+        height = int(200.0*max(1,main.geometry[1]))
         self.set_size_request(width,height)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.set_title("Sprachverwaltung")
         self.set_modal(True)
-        self.set_transient_for(self.parent_gui)
+        self.set_transient_for(self.parent_gui.win)
 
         self.spr_store = self.parent_gui.listen[0]
         cell = Gtk.CellRendererText()
