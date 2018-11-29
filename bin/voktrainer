@@ -55,4 +55,6 @@ if __name__ == "__main__":
             kartei.add_kapitel(argv[4],argv[3])
          if argv[2] == "spr" and len(argv) >= 5:
             kartei.add_sprache(argv[3],argv[4],argv[5])
+      else:
+         print("Unknown command: %s" % argv[1])
 
