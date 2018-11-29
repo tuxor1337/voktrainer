@@ -68,6 +68,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="model">store_sprache</property>
+            <property name="wrap_width">1</property>
             <signal name="changed" handler="changed_cb" swapped="no"/>
             <child>
               <object class="GtkCellRendererText"/>
@@ -82,6 +83,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="model">store_kapitel</property>
+            <property name="wrap_width">1</property>
             <signal name="changed" handler="changed_cb" swapped="no"/>
             <child>
               <object class="GtkCellRendererText"/>
@@ -99,6 +101,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="model">store_kasten</property>
+            <property name="wrap_width">1</property>
             <signal name="changed" handler="changed_cb" swapped="no"/>
             <child>
               <object class="GtkCellRendererText"/>

@@ -53,6 +53,13 @@ class dialog_entry(Gtk.Dialog):
         box.pack_start(self.entries[-1],True,True,0)
         self.vbox.pack_start(box,False,False,0)
 
+def dialog_message(win, message, type="info"):
+    type = Gtk.MessageType.ERROR if type == "error" else Gtk.MessageType.INFO
+    popup = Gtk.MessageDialog(win, Gtk.DialogFlags.MODAL, type,
+                              Gtk.ButtonsType.OK, message)
+    popup.run()
+    popup.destroy()
+
 def dialog_kap_rem(win):
     frage = Gtk.MessageDialog(win,Gtk.DialogFlags.MODAL,
             Gtk.MessageType.QUESTION,(Gtk.ButtonsType.YES_NO),

@@ -25,10 +25,11 @@ from ..actions.vok import vok_edit,vok_rem,vok_add,vok_move,vok_copy
 from .progress import gui_progress
 
 class gui_anzeige(object):
-    def __init__(self, kartei, treeview):
+    def __init__(self, main, treeview):
+        self.main = main
         self.tv = treeview
         self.vok_store = self.tv.get_model()
-        self.kartei = kartei
+        self.kartei = main.kartei
         self.tv.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE)
 
         self.spalten = self.tv.get_columns()
@@ -85,13 +86,13 @@ class gui_anzeige(object):
         if vok_rem(self.tv.get_toplevel(),self.kartei,vokids):
             if anz_rows > 30:
                 self.tv.hide()
-                self.tv.get_toplevel().anz_vok.hide()
+                self.main.anz_vok.hide()
             for row in [Gtk.TreeRowReference.new(sel[0],x) for x in sel[1]]:
                 self.vok_store.remove(self.vok_store.get_iter(row.get_path()))
-            self.tv.get_toplevel().refresh_anz_vok()
+            self.main.refresh_anz_vok()
             if anz_rows > 30:
                 self.tv.show()
-                self.tv.get_toplevel().anz_vok.show()
+                self.main.anz_vok.show()
 
     def menuitem_cb_move(self, widget, string, kap):
         sel = self.tv.get_selection().get_selected_rows()
@@ -105,7 +106,7 @@ class gui_anzeige(object):
             result = vok_move(self.tv.get_toplevel(), self.kartei, vokids, kap[1])
         if anz_rows > 30:
             self.tv.hide()
-            self.tv.get_toplevel().anz_vok.hide()
+            self.main.anz_vok.hide()
         i = -1
         for row in [Gtk.TreeRowReference.new(sel[0],x) for x in sel[1]]:
             vok = self.vok_store[row.get_path()]
@@ -126,10 +127,10 @@ class gui_anzeige(object):
                     else:
                         self.rem_from_tree(result[i][0])
                         self.edit_tree_vok(row.get_path(),result[i][0])
-        self.tv.get_toplevel().refresh_anz_vok()
+        self.main.refresh_anz_vok()
         if anz_rows > 30:
             self.tv.show()
-            self.tv.get_toplevel().anz_vok.show()
+            self.main.anz_vok.show()
 
     def get_path_from_vokid(self, vokid):
         for vok in self.vok_store:
@@ -201,12 +202,12 @@ class gui_anzeige(object):
                 menu_item = Gtk.MenuItem("Löschen")
                 menu_item.connect("activate", self.menuitem_cb, "del")
                 kontext.append(menu_item)
-                if len(self.tv.get_toplevel().listen[1]) > 2:
+                if len(self.main.listen[1]) > 2:
                     menu_item = Gtk.MenuItem("Verschieben...")
                     menu_item2 = Gtk.MenuItem("Kopieren...")
                     submenu = Gtk.Menu()
                     submenu2 = Gtk.Menu()
-                    for kap in list(self.tv.get_toplevel().listen[1])[1:]:
+                    for kap in list(self.main.listen[1])[1:]:
                         sub_item = Gtk.MenuItem(kap[0])
                         sub_item.connect("activate", self.menuitem_cb,
                                          "move", kap)

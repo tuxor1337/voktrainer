@@ -50,7 +50,7 @@ class gui_main(object):
         self.win.set_size_request(width, height)
 
         self.kartei   = vokabelKartei()
-        self.vokliste = gui_anzeige(self.kartei, builder.get_object("anzeige"))
+        self.vokliste = gui_anzeige(self, builder.get_object("anzeige"))
         self.anz_vok = builder.get_object("anz_vok")
 
         self.selected = [0,0,0]
@@ -87,10 +87,6 @@ class gui_main(object):
                         Gtk.AccelFlags.VISIBLE,
                         self.accel_cb)
 
-        self.win.refresh_vok = self.refresh_vok
-        self.win.refresh_anz_vok = self.refresh_anz_vok
-        self.win.listen = self.listen
-        self.win.select = self.select
         self.win.show_all()
         self.refresh_all()
         Gtk.main()
@@ -145,6 +141,7 @@ class gui_main(object):
                 for kapitel in kaps:
                     self.listen[1].append([kapitel[1], kapitel[0]])
             self.listen[1].append(["Ohne Kapitel", 0])
+            self.select[1].set_wrap_width(-(len(self.listen[1])//-15))
             self.select[1].set_active(0)
             self.select[2].set_active(0)
             self.refresh_vok()
@@ -189,11 +186,11 @@ class gui_main(object):
             gui_eingabe(self, self.listen[0][self.selected[0]][1],
                               self.listen[1][self.selected[1]][1])
         elif data == "abfr":
-            gui_abfrage(self.win, vok_abfrager(self.kartei,
+            gui_abfrage(self, vok_abfrager(self.kartei,
                         self.listen[0][self.selected[0]][1],
                         self.listen[1][self.selected[1]][1],
                         self.listen[2][self.selected[2]][1],
-                        self.abfragefilter.get_active()),self.geometry)
+                        self.abfragefilter.get_active()))
         elif data == "zurueck":
             for vok in self.vokliste.vok_store:
                 if vok[3] != "Kasten 1":
@@ -204,6 +201,7 @@ class gui_main(object):
             if vok_import(self.win, self.kartei,
                           self.listen[0][self.selected[0]][1],
                           self.listen[1][self.selected[1]][1]):
+                self.refresh_kap()
                 self.refresh_vok()
         elif data == "export":
             vok_export(self.win, self.kartei,

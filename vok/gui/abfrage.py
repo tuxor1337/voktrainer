@@ -20,29 +20,30 @@
 
 from gi.repository import Gtk,Gdk,Pango
 
+from .dialogs import dialog_message
+
 class gui_abfrage(Gtk.Window):
-    def __init__(self,maingui,abfrager,geometry):
+    def __init__(self, main, abfrager):
         Gtk.Window.__init__(self)
 
         if abfrager.vok_gesamt == 0:
-            info = Gtk.MessageDialog(maingui,Gtk.DialogFlags.MODAL,
-                Gtk.MessageType.INFO,Gtk.ButtonsType.OK,
+            dialog_message(main.win,
                 """Keine Vokabeln für die Abfrage verfügbar. Versuchen Sie es
                 eventuell erneut mit deaktiviertem Abfragefilter.""")
-            info.run(); info.destroy(); self.destroy()
+            self.destroy()
             return None
 
         self.abfr = abfrager
-        self.parent_gui = maingui
-        self.parent_gui.hide()
+        self.main = main
+        self.main.win.hide()
 
-        width = int(240.0*max(1,geometry[0]))
-        height = int(130.0*max(1,geometry[1]))
+        width = int(240.0*max(1,main.geometry[0]))
+        height = int(130.0*max(1,main.geometry[1]))
         self.set_size_request(width,height)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.set_title("Vokabelabfrage")
         self.set_modal(True)
-        self.set_transient_for(self.parent_gui)
+        self.set_transient_for(self.main.win)
 
         self.last_corr = Gtk.Label(label=" Richtig:")
         self.last_corr.set_line_wrap(True)
@@ -90,8 +91,8 @@ class gui_abfrage(Gtk.Window):
         self.last_corr.hide()
 
     def destroy_cb(self,widget,data=None):
-        self.parent_gui.refresh_vok()
-        self.parent_gui.show()
+        self.main.refresh_vok()
+        self.main.win.show()
 
     def format_text(self,label_type,txt):
         if label_type == 0:

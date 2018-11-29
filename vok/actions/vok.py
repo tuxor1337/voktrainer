@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import os
+import zipfile
 
 from ..utils import word_list
 from ..core.config import CLI_MODE
@@ -27,7 +29,8 @@ if CLI_MODE == True:
     from sys import argv
 else:
     from ..gui.dialogs import dialog_vok_merge_yn, dialog_vok_merge_edit,\
-                    dialog_vok_edit, dialog_vok_rem, dialog_import, dialog_export
+                    dialog_vok_edit, dialog_vok_rem, dialog_import, \
+                    dialog_export, dialog_message
     from ..gui.progress import gui_progress as progress
 
 def vok_merge(win,kartei,orig,new_meanings):
@@ -118,36 +121,50 @@ def vok_copy(win,kartei,vokids,kapid):
         prog_w.destroy()
     return copied
 
-def vok_import(win, kartei, spr, kap, encoding="utf-8"):
+def vok_import(win, kartei, spr, kap):
     filename = dialog_import(win)
     if filename == None:
         return False
     else:
-        vok_import_file(filename, win, kartei, spr, kap)
+        zf = None
+        if os.path.splitext(filename)[1] == ".zip":
+            zf = zipfile.ZipFile(filename, mode="r")
+            files = [[n, zf.open(n, "r")] for n in zf.namelist()]
+        else:
+            files = [[filename, open(filename, "rb")]]
+        for f in files:
+            vok_import_file(f[0], f[1], win, kartei, spr, kap)
+        if zf is not None: zf.close()
         return True
 
-def vok_import_file(filename, win, kartei, spr, kap, encoding="utf-8"):
+def vok_import_file(filename, handle, win, kartei, spr, kap, encoding="utf-8"):
+    name = os.path.splitext(os.path.basename(filename))[0]
+    kap = kartei.add_kapitel(name, spr) if kap == -1 else kap
+    lines = handle.readlines()
     try:
-        with open(filename, "r", encoding=encoding) as tmp_file:
-            kartei.set_commit_mode(False)
-            lines = tmp_file.readlines()
-            anz_lines = len(lines)
-            for i,line in enumerate(lines):
-                if line.find("@") == -1:
-                    continue
-                else:
-                    vok = line.strip().split("@")
-                    vok_add(win,kartei,vok[0].strip(),vok[1].strip(),spr,kap)
-            kartei.set_commit_mode(True)
+        lines = [l.decode(encoding) for l in lines]
+        kartei.set_commit_mode(False)
+        anz_lines = len(lines)
+        for i,line in enumerate(lines):
+            if line.find("@") == -1:
+                print(line)
+                continue
+            else:
+                vok = line.strip().split("@")
+                vok_add(win,kartei,vok[0].strip(),vok[1].strip(),spr,kap)
+        kartei.set_commit_mode(True)
+        handle.close()
     except UnicodeDecodeError:
         if encoding == "utf-8":
             encoding = "iso-8859-1"
         elif encoding == "iso-8859-1":
             encoding = "cp-1252"
         else:
-            raise
-        vok_import_file(filename, win, kartei, spr, kap, encoding=encoding)
-
+            dialog_message(win,
+                "%s: Unbekannter Zeichensatz!" % filename, type="error")
+            handle.close()
+            return
+        vok_import_file(filename, handle, win, kartei, spr, kap, encoding=encoding)
 
 def vok_export(win,kartei,spr,kap,kasten):
         filename,format = dialog_export(win)
