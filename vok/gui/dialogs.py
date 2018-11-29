@@ -215,7 +215,9 @@ def dialog_export(win):
         (Gtk.STOCK_SAVE,Gtk.ResponseType.OK,
         Gtk.STOCK_CANCEL,Gtk.ResponseType.CANCEL))
     chosen.set_do_overwrite_confirmation(True)
-    for fil in [["HTML","*.html","html"],["Plain Text","*.txt","txt"]]:
+    for fil in [["HTML","*.html","html"],
+                ["Plain Text","*.txt","txt"],
+                ["Zip Archive","*.zip","zip"]]:
         filefilter = Gtk.FileFilter()
         filefilter.set_name(fil[0])
         filefilter.add_pattern(fil[1])

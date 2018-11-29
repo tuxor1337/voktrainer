@@ -134,6 +134,7 @@ def vok_import(win, kartei, spr, kap):
             files = [[filename, open(filename, "rb")]]
         for f in files:
             vok_import_file(f[0], f[1], win, kartei, spr, kap)
+            f[1].close()
         if zf is not None: zf.close()
         return True
 
@@ -153,7 +154,6 @@ def vok_import_file(filename, handle, win, kartei, spr, kap, encoding="utf-8"):
                 vok = line.strip().split("@")
                 vok_add(win,kartei,vok[0].strip(),vok[1].strip(),spr,kap)
         kartei.set_commit_mode(True)
-        handle.close()
     except UnicodeDecodeError:
         if encoding == "utf-8":
             encoding = "iso-8859-1"
@@ -162,40 +162,54 @@ def vok_import_file(filename, handle, win, kartei, spr, kap, encoding="utf-8"):
         else:
             dialog_message(win,
                 "%s: Unbekannter Zeichensatz!" % filename, type="error")
-            handle.close()
             return
         vok_import_file(filename, handle, win, kartei, spr, kap, encoding=encoding)
 
-def vok_export(win,kartei,spr,kap,kasten):
-        filename,format = dialog_export(win)
-        if filename == None:
-            return False
-        if filename[-4:] != ".txt" and format == "txt":
-            filename += ".txt"
-        elif filename[-5:] != ".html" and format == "html":
-            filename += ".html"
-        with open(filename,"w") as tmp_file:
-            stapel = kartei.get_stapel(spr,kap,kasten)
-            output = []
-            if format == "html":
-                titel = "%s: %s - %s" % tuple(kartei.get_sprachen(spr)[0][1:4])
-                output.extend([
-                    "<!DOCTYPE html>",
-                    "<html><head>",
-                    "<title>"+titel+"</title>",
-                    '<meta http-equiv="content-type"	'
-                    + 'content="text/html; charset=UTF-8" />',
-                    "</head><body><h1>"+titel+"</h1>",
-                    "<table>"])
-            for i,vok in enumerate(stapel):
-                if format == "html":
-                    output.append("<tr><td>%s</td><td>%s</td></tr>\n" \
-                        % (vok[1], ", ".join(word_list(vok[2]))))
-                else:
-                    output.append("%s@%s\n" % (vok[1], vok[2]))
-            if format == "html":
-                output.append("</body></html>")
-            tmp_file.writelines(output)
-            return True
+def vok_export(win, kartei, spr, kap, kasten):
+    filename, format = dialog_export(win)
+    if filename == None:
         return False
 
+    if filename[-4:] != ".txt" and format == "txt":
+        filename += ".txt"
+    elif filename[-5:] != ".html" and format == "html":
+        filename += ".html"
+    elif filename[-4:] != ".zip" and format == "zip":
+        filename += ".zip"
+
+    zf, kaps, files = None, [[kap]], [[format, filename]]
+    if format == "zip":
+        kaps = kartei.get_kapitel(spr, kap)
+        zf = zipfile.ZipFile(filename, mode="w")
+        files = [["txt", "%s.txt" % k[1]] for k in kaps]
+
+    for f,k in zip(files, kaps):
+        handle = zf.open(f[1], "w") if format == "zip" else open(f[1], "wb")
+        vok_export_file(f[0], handle, kartei, spr, k[0], kasten)
+        handle.close()
+
+    if zf is not None: zf.close()
+    return True
+
+def vok_export_file(format, handle, kartei, spr, kap, kasten):
+    stapel = kartei.get_stapel(spr, kap, kasten)
+    output = []
+    if format == "html":
+        titel = "%s: %s - %s" % tuple(kartei.get_sprachen(spr)[0][1:4])
+        output.extend([
+            "<!DOCTYPE html>",
+            "<html><head>",
+            "<title>"+titel+"</title>",
+            '<meta http-equiv="content-type"	'
+            + 'content="text/html; charset=UTF-8" />',
+            "</head><body><h1>"+titel+"</h1>",
+            "<table>"])
+    for i,vok in enumerate(stapel):
+        if format == "html":
+            output.append("<tr><td>%s</td><td>%s</td></tr>\n" \
+                % (vok[1], ", ".join(word_list(vok[2]))))
+        else:
+            output.append("%s@%s\n" % (vok[1], vok[2]))
+    if format == "html":
+        output.append("</table></body></html>")
+    handle.writelines([o.encode("utf-8") for o in output])
