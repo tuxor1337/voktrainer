@@ -43,10 +43,10 @@ class gui_main(object):
 
         self.win = builder.get_object("window1")
         screen = Gdk.Screen.get_default()
-        self.geometry   = (screen.width()/640.0,screen.height()/480.0,\
+        self.geometry   = (screen.width()/1280.0,screen.height()/800.0,\
                            int(screen.width()*0.5),int(screen.height()*0.5))
-        width = int(600.0*max(1,self.geometry[0]))
-        height = int(400.0*max(1,self.geometry[1]))
+        width = int(1150.0*min(1.1,max(1,self.geometry[0])))
+        height = int(750.0*min(1.1,max(1,self.geometry[1])))
         self.win.set_size_request(width, height)
 
         self.kartei   = vokabelKartei()
